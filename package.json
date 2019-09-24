@@ -1,0 +1,36 @@
+{
+  "name": "sbanken-ynab-importer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Torry Tufteland <torry.tufteland@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "jest"
+  },
+  "dependencies": {
+    "acorn": "^7.0.0",
+    "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
+    "btoa": "^1.2.1",
+    "constantinople": "^3.1.2",
+    "date-fns": "^2.2.1",
+    "debug": "^4.1.1",
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "jade": "^1.11.0",
+    "jest": "^24.9.0",
+    "lodash.keyby": "^4.6.0",
+    "morgan": "^1.9.1",
+    "superagent": "^4.1.0",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2"
+  },
+  "jest": {
+    "verbose": true
+  }
+}
