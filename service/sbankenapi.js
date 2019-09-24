@@ -83,9 +83,9 @@ exports.getAccount = (accountId, accessToken) => {
 exports.getAccountTransactions = (accessToken, accountId, startDate, endDate) => {
   const requestUrl = `${bankApiUrl}/api/v1/transactions/${accountId}`;
 
-  const startDateReq = startDate || format(addDays(-6)(new Date()), 'yyyy-MM-dd');
+  const startDateReq = startDate || format(addDays(-7)(new Date()), 'yyyy-MM-dd');
 
-  const endDateReq = endDate || format(addDays(-4)(new Date()), 'yyyy-MM-dd');
+  const endDateReq = endDate || format(new Date(), 'yyyy-MM-dd');
 
   // const endDateReq = endDate || format(new Date(), 'yyyy-MM-dd');
 

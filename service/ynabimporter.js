@@ -101,13 +101,7 @@ exports.importRecentSbankenTransactions = async () => {
   const updateResponse = await ynabApi.importTransactions(ynab.budgetId, flattenedTransactions);
 
   return {
-    updatedItems:
-      updateResponse
-      && updateResponse.transaction_ids
-      // eslint-disable-next-line no-mixed-operators
-      && updateResponse.transaction_ids.length
-      // eslint-disable-next-line no-mixed-operators
-      || 0,
+    updatedItems: updateResponse.transaction_ids.length,
     ...updateResponse,
   };
   // return {
