@@ -70,7 +70,7 @@ functions:
   importSbankenToYnab:
     handler: handler.importTransactions
     events:
-      - schedule: cron(0 9,11,13,15,17 * * ? *)
+      - schedule: cron(0/10 4-16 ? * MON-FRI *)
 
 #      - http:
 #          path: users/create
