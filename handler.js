@@ -4,7 +4,7 @@ module.exports.importTransactions = async (event) => {
   let response = null;
   try {
     response = await importer.importRecentSbankenTransactions();
-    console.log(`Import successful!🤖🎉\n\n Result: \n${response}`);
+    console.log(`Import successful!🤖🎉\n\n Result: \n${JSON.stringify(response)}`);
   } catch (err) {
     console.error(err);
     return ({
