@@ -87,8 +87,6 @@ exports.getAccountTransactions = (accessToken, accountId, startDate, endDate) =>
 
   const endDateReq = endDate || format(new Date(), 'yyyy-MM-dd');
 
-  // const endDateReq = endDate || format(new Date(), 'yyyy-MM-dd');
-
   const promise = new Promise((resolve, reject) => {
     request
       .get(requestUrl)

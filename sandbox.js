@@ -1,9 +1,6 @@
-const ynabApi = require('./service/ynabapi');
-const { ynab: { budgetId } } = require('./user.config');
+const importer = require('./service/ynabimporter');
 
-const transactions = [{}];
-
-ynabApi.importTransactions(budgetId, transactions)
+importer.importRecentSbankenTransactions()
   .then((x) => {
     console.log(x);
   })
