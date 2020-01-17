@@ -76,6 +76,31 @@ function deduplicateImportIds(transactions) {
 }
 exports.deduplicateImportIds = deduplicateImportIds;
 
+function isTransfer(transaction) {
+  return transaction.payee_name === 'Overføring mellom egne kontoer';
+}
+
+function matchInternalTransfers(transactions) {
+  const transfers = transactions.filter((x) => isTransfer(x));
+  const matched = transactions.map((transaction) => {
+    if (!isTransfer(transaction)) {
+      return { ...transaction };
+    }
+
+    const matches = transfers
+      .filter((x) => x.amount === -transaction.amount && x.date === transaction.date);
+    if (matches.length === 0) {
+      return { ...transaction };
+    }
+    const accountMatchName = accounts.filter((x) => x.ynabId === matches[0].account_id)[0].ynabName;
+
+    const newPayeeName = `Transfer ${transaction.amount < 0 ? 'to' : 'from'}: ${accountMatchName}`;
+
+    return { ...transaction, payee_name: newPayeeName };
+  });
+  return matched;
+}
+
 
 exports.importRecentSbankenTransactions = async () => {
   const response = await sbankenApi.getAccessToken();
@@ -89,7 +114,8 @@ exports.importRecentSbankenTransactions = async () => {
       .filter((x) => !x.isReservation)
       .map((transaction) => mapToYnabImportFormat(transaction, account.ynabId));
 
-    return deduplicateImportIds(ynabData);
+    const deduplicated = deduplicateImportIds(ynabData);
+    return deduplicated;
   });
 
   const allResults = await Promise.all(accountPromises);
@@ -98,14 +124,12 @@ exports.importRecentSbankenTransactions = async () => {
     .reduce((acc, curr) => acc.concat(curr), [])
     .sort((a, b) => compareAsc(parseISO(a.date), parseISO(b.date)));
 
-  const updateResponse = await ynabApi.importTransactions(ynab.budgetId, flattenedTransactions);
+  const withMatchedTransfers = matchInternalTransfers(flattenedTransactions);
+
+  const updateResponse = await ynabApi.importTransactions(ynab.budgetId, withMatchedTransfers);
 
   return {
     updatedItems: updateResponse.transaction_ids.length,
     ...updateResponse,
   };
-  // return {
-  //   availableItems: flattenedTransactions.length,
-  //   items: flattenedTransactions,
-  // };
 };

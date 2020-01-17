@@ -11,6 +11,7 @@ module.exports = {
   accounts: [
     {
       ynabId: '',
+      ynabName: '',
       sbankenId: '',
     },
   ],

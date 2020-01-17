@@ -1,9 +1,19 @@
 const importer = require('./service/ynabimporter');
+// const sbankenApi = require('./service/sbankenapi');
 
-importer.importRecentSbankenTransactions()
-  .then((x) => {
-    console.log(x);
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+async function main() {
+  // const accessToken = (await sbankenApi.getAccessToken()).access_token;
+  // const result = await sbankenApi.listAccounts(accessToken);
+
+  // const hello = result;
+  // console.log(hello);
+  try {
+    const result = await importer.importRecentSbankenTransactions();
+    console.log(result);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+main()
+  .then(() => console.log('Complete!'));
