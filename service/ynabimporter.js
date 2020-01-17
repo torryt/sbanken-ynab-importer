@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 const { parseISO, format, compareAsc } = require('date-fns');
 const keyBy = require('lodash.keyby');
-const { produce } = require('immer');
 const uuid = require('uuid/v4');
 
 const sbankenApi = require('./sbankenapi');
