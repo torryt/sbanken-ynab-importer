@@ -30,3 +30,8 @@ exports.getBudget = async (budgetId) => {
   const response = await axios.get(`${baseUrl}/budgets/${budgetId}`, options);
   return response.data.data.budget;
 };
+
+exports.listAccounts = async (budgetId) => {
+  const response = await axios.get(`${baseUrl}/budgets/${budgetId}/accounts`, options);
+  return response.data.data.accounts;
+};

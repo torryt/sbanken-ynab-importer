@@ -1,10 +1,16 @@
+/* eslint-disable no-param-reassign */
 const { parseISO, format, compareAsc } = require('date-fns');
 const keyBy = require('lodash.keyby');
+const { produce } = require('immer');
+const uuid = require('uuid/v4');
 
 const sbankenApi = require('./sbankenapi');
 const ynabApi = require('./ynabapi');
 
-const { accounts, ynab } = require('../user.config');
+const config = require('../user.config');
+
+const userAccounts = config.accounts;
+const { ynab } = config;
 
 function formatDate(isoDate) {
   const date = parseISO(isoDate);
@@ -36,7 +42,7 @@ function mapToYnabImportFormat(transaction, ynabAccountId) {
   const payee = transaction.cardDetails && transaction.cardDetails.merchantName;
   const amount = amountToMilliunits(transaction.amount);
   const date = formatDate(transaction.accountingDate);
-
+  const importId = makeImportId(amount, date, 0);
   return {
     account_id: ynabAccountId,
     date,
@@ -45,7 +51,8 @@ function mapToYnabImportFormat(transaction, ynabAccountId) {
     payee_name: payee || cleanTransactionText(transaction.text),
     cleared: 'cleared',
     approved: false,
-    import_id: makeImportId(amount, date, 0),
+    import_id: importId,
+    key: uuid(),
   };
 }
 exports.mapToYnabImportFormat = mapToYnabImportFormat;
@@ -77,35 +84,75 @@ function deduplicateImportIds(transactions) {
 exports.deduplicateImportIds = deduplicateImportIds;
 
 function isTransfer(transaction) {
-  return transaction.payee_name === 'Overføring mellom egne kontoer';
+  return transaction.payee_name === 'Overføring mellom egne kontoer'
+    || (transaction.memo === 'Overføring' && transaction.payee_name === 'NETTBANK');
+}
+
+let cachedAccounts = null;
+function getMatchPayeeId(matches) {
+  if (matches.length === 0) {
+    return [null];
+  }
+
+  const match = matches[0];
+
+  const accounts = cachedAccounts.filter((x) => x.id === match.account_id);
+
+  if (accounts.length == null) {
+    return [null];
+  }
+
+  return [match, accounts[0].transfer_payee_id];
 }
 
 function matchInternalTransfers(transactions) {
-  const transfers = transactions.filter((x) => isTransfer(x));
-  const matched = transactions.map((transaction) => {
+  // eslint-disable-next-line no-unused-vars
+  const withoutIncomingTransfers = transactions.filter((x) => !(isTransfer(x) && x.amount > 0));
+
+  const withMappedTransfers = withoutIncomingTransfers.map((transaction) => {
     if (!isTransfer(transaction)) {
-      return { ...transaction };
+      return transaction;
     }
+    const matches = transactions
+      .filter((x) => x.amount === -transaction.amount
+      && x.date === transaction.date
+      && isTransfer(x));
 
-    const matches = transfers
-      .filter((x) => x.amount === -transaction.amount && x.date === transaction.date);
-    if (matches.length === 0) {
-      return { ...transaction };
+    const [match, payeeId] = getMatchPayeeId(matches);
+    if (match) {
+      // eslint-disable-next-line camelcase
+      const { payee_name, ...newTransaction } = transaction;
+      return { ...newTransaction, payee_id: payeeId };
     }
-    const accountMatchName = accounts.filter((x) => x.ynabId === matches[0].account_id)[0].ynabName;
-
-    const newPayeeName = `Transfer ${transaction.amount < 0 ? 'to' : 'from'}: ${accountMatchName}`;
-
-    return { ...transaction, payee_name: newPayeeName };
+    return transaction;
   });
-  return matched;
+  return withMappedTransfers;
+
+  // const matched = transactions.map((transaction) => {
+  //   if (!isTransfer(transaction)) {
+  //     return { ...transaction };
+  //   }
+
+  //   const matches = transfers
+  //     .filter((x) => x.amount === -transaction.amount && x.date === transaction.date);
+  //   if (matches.length === 0) {
+  //     return { ...transaction };
+  //   }
+  //   const accountMatchName = userAccounts.filter((x) => x.ynabId === matches[0].account_id)[0].ynabName;
+
+  //   const newPayeeName = `Transfer ${transaction.amount < 0 ? 'to' : 'from'}: ${accountMatchName}`;
+
+  //   return { ...transaction, payee_name: newPayeeName };
+  // });
+  // return matched;
 }
 
 
 exports.importRecentSbankenTransactions = async () => {
   const response = await sbankenApi.getAccessToken();
+  cachedAccounts = await ynabApi.listAccounts('last-used');
 
-  const accountPromises = accounts.map(async (account) => {
+  const accountPromises = userAccounts.map(async (account) => {
     const transactionsResponse = await sbankenApi.getAccountTransactions(
       response.access_token,
       account.sbankenId,

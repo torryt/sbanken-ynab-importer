@@ -1,5 +1,5 @@
 const importer = require('./service/ynabimporter');
-// const sbankenApi = require('./service/sbankenapi');
+// const ynabapi = require('./service/ynabapi');
 
 async function main() {
   // const accessToken = (await sbankenApi.getAccessToken()).access_token;
