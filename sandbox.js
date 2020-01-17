@@ -1,12 +1,6 @@
 const importer = require('./service/ynabimporter');
-// const ynabapi = require('./service/ynabapi');
 
 async function main() {
-  // const accessToken = (await sbankenApi.getAccessToken()).access_token;
-  // const result = await sbankenApi.listAccounts(accessToken);
-
-  // const hello = result;
-  // console.log(hello);
   try {
     const result = await importer.importRecentSbankenTransactions();
     console.log(result);

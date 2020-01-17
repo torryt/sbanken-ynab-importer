@@ -1,4 +1,7 @@
 module.exports = {
+  options: {
+    useReservations: true,
+  },
   sbanken: {
     userid: 'XXXXXXXXXXX', // Norwegian 'Personnummer'
     clientid: '', // Sbanken API ClientId
@@ -9,6 +12,11 @@ module.exports = {
     budgetId: 'default', // Leave as DEFAULT or specify id
   },
   accounts: [
+    {
+      ynabId: '',
+      ynabName: '',
+      sbankenId: '',
+    },
     {
       ynabId: '',
       ynabName: '',

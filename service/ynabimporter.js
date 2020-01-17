@@ -149,7 +149,7 @@ function matchInternalTransfers(transactions) {
 
 exports.importRecentSbankenTransactions = async () => {
   const response = await sbankenApi.getAccessToken();
-  cachedAccounts = await ynabApi.listAccounts('last-used');
+  cachedAccounts = await ynabApi.listAccounts(ynab.budgetId);
 
   const accountPromises = userAccounts.map(async (account) => {
     const transactionsResponse = await sbankenApi.getAccountTransactions(
