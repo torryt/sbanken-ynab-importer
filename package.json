@@ -30,7 +30,7 @@
     "eslint": "^6.4.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "serverless": "^1.52.2",
+    "serverless": "^2.25.2",
     "serverless-plugin-include-dependencies": "^3.2.1"
   },
   "jest": {
