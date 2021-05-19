@@ -4,10 +4,10 @@ const dateFns = require('date-fns');
 const addDays = require('date-fns/fp/addDays');
 const config = require('../user.config').sbanken;
 
-const { clientid, secret, userid } = config;
+const { clientid, secret } = config;
 
 const { format } = dateFns;
-const bankApiUrl = 'https://api.sbanken.no/exec.bank';
+const bankApiUrl = 'https://publicapi.sbanken.no/apibeta';
 
 exports.getAccessToken = () => {
   const identityServerUrl = 'https://auth.sbanken.no/identityserver/connect/token'; // access token endpoint
@@ -22,7 +22,6 @@ exports.getAccessToken = () => {
       .send('grant_type=client_credentials')
       .set('Authorization', `Basic ${basicAuth}`)
       .set('Accept', 'application/json')
-      .set('customerId', userid)
       .end((err, res) => {
         if (err || !res.ok) {
           console.error(err);
@@ -44,7 +43,6 @@ exports.listAccounts = (accessToken) => {
       .get(accountServiceUrl)
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Accept', 'application/json')
-      .set('customerId', userid)
       .end((err, res) => {
         if (err || !res.ok) {
           console.error(err);
@@ -66,7 +64,6 @@ exports.getAccount = (accountId, accessToken) => {
       .get(accountServiceUrl)
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Accept', 'application/json')
-      .set('customerId', userid)
       .end((err, res) => {
         if (err || !res.ok) {
           console.error(err);
@@ -92,7 +89,6 @@ exports.getAccountTransactions = (accessToken, accountId, startDate, endDate) =>
       .get(requestUrl)
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Accept', 'application/json')
-      .set('customerId', userid)
       .query({ length: 1000 })
       .query({ startDate: startDateReq })
       .query({ endDate: endDateReq })

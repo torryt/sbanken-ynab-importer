@@ -3,7 +3,6 @@ module.exports = {
     useReservations: true,
   },
   sbanken: {
-    userid: 'XXXXXXXXXXX', // Norwegian 'Personnummer'
     clientid: '', // Sbanken API ClientId
     secret: '', // Sbanken API client secret
   },
